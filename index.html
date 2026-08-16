@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>稿定 · 草稿对比 · 定稿 · 反AI检查</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app-window">
+  <div id="title-bar">
+    <span class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    </span>
+    <span class="title">稿定</span>
+    <span class="title-desc">草稿对比 · 定稿 · 反AI检查</span>
+    <div class="title-right">
+      <div class="mode-wrap" id="mode-wrap">
+        <button class="mode-btn" id="btn-mode" title="切换打开模式">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg>
+          <span class="mode-cur" id="mode-cur">模式</span>
+          <svg class="mode-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="mode-pop" id="mode-pop">
+          <button type="button" class="mode-item" data-mode="side">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg>
+            <span class="mode-name">侧边栏</span>
+            <span class="mode-desc">右侧窄窗</span>
+            <span class="mode-check"></span>
+          </button>
+          <button type="button" class="mode-item" data-mode="popup">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="14" x="3" y="5" rx="2"/><path d="M3 9h18"/></svg>
+            <span class="mode-name">小窗</span>
+            <span class="mode-desc">独立窗口可放大</span>
+            <span class="mode-check"></span>
+          </button>
+        </div>
+      </div>
+      <button class="icon-btn" id="btn-max" title="最大化/还原">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="toolbar">
+    <div class="seg" id="seg-area" title="工作区切换">
+      <button type="button" data-area="compare" class="active">对比</button>
+      <button type="button" data-area="outline">大纲</button>
+    </div>
+    <button class="main-btn cmp-only" id="btn-import" title="导入草稿 / 词库（自动识别）">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      导入
+    </button>
+    <button class="sec-btn cmp-only" id="btn-paste">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+      粘贴文本
+    </button>
+    <button class="sec-btn cmp-only" id="btn-reselect">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      重选
+    </button>
+    <div class="tb-sep cmp-only"></div>
+    <div class="seg cmp-only" id="seg-gran">
+      <button id="btn-char" class="active">字对比</button>
+      <button id="btn-line">行对比</button>
+    </div>
+    <div class="seg cmp-only" id="seg-mode">
+      <button id="btn-split" class="active">并排</button>
+      <button id="btn-unified">合并</button>
+    </div>
+    <div class="seg cmp-only" id="seg-col">
+      <button id="btn-col-1">单栏</button>
+      <button id="btn-col-2">双栏</button>
+      <button id="btn-col-3">三栏</button>
+      <button id="btn-col-4" class="active">四栏</button>
+    </div>
+    <div class="tb-sep cmp-only"></div>
+    <button class="nav-btn cmp-only" id="btn-prev" title="上一处差异（Ctrl+↑）">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+    </button>
+    <button class="nav-btn cmp-only" id="btn-next" title="下一处差异（Ctrl+↓）">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+    </button>
+    <div class="tb-spacer cmp-only"></div>
+    <span id="stats" class="cmp-only"></span>
+    <button class="sec-btn cmp-only" id="btn-diff-report" title="导出差异报告 md">差异报告</button>
+    <div class="tb-sep cmp-only"></div>
+    <label class="chk cmp-only"><input type="checkbox" id="chk-hl" checked><span class="tick"></span><span>高亮差异</span></label>
+    <label class="chk cmp-only"><input type="checkbox" id="chk-sync" checked><span class="tick"></span><span>同步滚动</span></label>
+    <label class="chk cmp-only"><input type="checkbox" id="chk-fm" checked><span class="tick"></span><span>忽略 YAML 头</span></label>
+  </div>
+  <div id="panes"></div>
+  <div id="outline-wrap" style="display:none">
+    <div id="outline-toolbar">
+      <select id="outline-file" title="切换文档"></select>
+      <button type="button" class="sec-btn" data-outline-import title="导入 md/txt（可多选）">导入</button>
+      <button type="button" class="sec-btn" data-outline-new title="新建文档">＋ 新建</button>
+      <button type="button" class="sec-btn" data-outline-edit title="编辑当前文档">编辑</button>
+      <button type="button" class="sec-btn" data-outline-del title="删除当前文档">删除</button>
+      <div class="tb-sep"></div>
+      <div class="seg" id="outline-view">
+        <button type="button" data-outline-tree class="active">大纲树</button>
+        <button type="button" data-outline-full>全文阅读</button>
+      </div>
+      <div class="tb-sep"></div>
+      <button type="button" class="sec-btn" data-outline-expand title="展开全部">展开</button>
+      <button type="button" class="sec-btn" data-outline-collapse title="折叠全部">折叠</button>
+      <div class="tb-sep"></div>
+      <button type="button" class="sec-btn" data-outline-send-all title="把当前文档全文送入定稿区">送定稿</button>
+      <button type="button" class="sec-btn" data-outline-lib title="把当前文档加入前文库（AI 检索用）">加前文库</button>
+      <button type="button" class="sec-btn" data-outline-export title="导出当前文档 md 源码">导出</button>
+      <button type="button" class="sec-btn" data-outline-copy title="复制当前文档 md 源码">复制</button>
+      <div class="tb-sep"></div>
+      <input id="outline-search" type="text" placeholder="搜索节 / 内容…">
+      <span id="outline-count" class="dim"></span>
+    </div>
+    <div id="outline-body"></div>
+    <input type="file" id="outline-file-input" accept=".md,.txt,text/plain,text/markdown" multiple hidden>
+  </div>
+  <div id="splitter" title="拖动调整定稿区高度"></div>
+  <div id="dock">
+    <div id="dock-hdr">
+      <button class="dock-btn" id="btn-editor-collapse" title="折叠/展开定稿区">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+      </button>
+      <span class="dock-title">定稿区</span>
+      <div class="emo-wrap" id="emo-wrap">
+        <button class="dock-btn emo-btn" id="btn-emo" title="选择当前情绪">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          <span id="emo-cur">紧张</span>
+        </button>
+        <div class="emo-pop" id="emo-pop"></div>
+      </div>
+      <button class="dock-btn" id="btn-suggest" title="弹当前情绪候选（Ctrl+Enter）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        补全
+      </button>
+      <label class="chk dockchk" title="输入到句尾自动弹候选（默认关）"><input type="checkbox" id="chk-autosuggest"><span class="tick"></span><span>自动补全</span></label>
+      <div class="tb-sep"></div>
+      <button class="dock-btn" id="btn-fav" title="常用词句（参与补全）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span id="fav-btn-label">常用词句</span>
+      </button>
+      <button class="dock-btn" id="btn-material" title="素材台（选词/黄金句）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/></svg>
+        素材台
+      </button>
+      <button class="dock-btn" id="btn-lib" data-lib-open title="前文库：导入前文章节，AI 写作时跨章节检索参考">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        前文库
+      </button>
+      <button class="dock-btn" id="btn-lore" data-lore-open title="设定：角色卡 / 世界观设定卡，AI 写作时全量注入">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        设定
+      </button>
+      <button class="dock-btn" id="btn-replace" title="选中文字后点我：换一种说法（Ctrl+Shift+Enter）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+        换说法
+      </button>
+      <button class="dock-btn" id="btn-ai" title="AI 写作面板：润色 / 续写 / 扩写 / 重写（需在设置开启 AI）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6"/></svg>
+        <span id="ai-menu-label">AI 润色</span>
+      </button>
+      <button class="dock-btn" id="btn-settings" title="设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <div class="tb-spacer"></div>
+      <button class="dock-btn hl-btn" id="btn-send-cmp" title="把定稿复制进对比区空槽位（快照）">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 21H3v-5"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+        送对比
+      </button>
+      <button class="dock-btn" id="btn-export" title="导出为 .md">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        导出
+      </button>
+      <button class="dock-btn" id="btn-copy-draft" title="复制定稿全文">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        复制
+      </button>
+      <button class="dock-btn" id="btn-editor-max" title="定稿区全屏/还原">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
+    </div>
+    <div id="dock-body">
+      <div id="editor-wrap">
+        <div id="editor-hint"><span class="hint-txt">@ 搜词库 · 「补全」=常用+情绪候选 · 选中文字弹「润色/扩写/重写」(Alt+P/E/R) · 反AI自动检查</span><span id="editor-count">0 字</span></div>
+        <textarea id="editor-ta" placeholder="在这里手写 / 润色正文…&#10;&#10;提示：选中文字自动弹出 AI 润色工具条；输入 @ 弹出词库搜索；「补全」按钮弹候选；选中文字点「换说法」；打字时自动做反AI检查。"></textarea>
+        <div id="suggest-popup" hidden></div>
+        <div id="sel-toolbar">
+          <button type="button" data-sel-ai="polish" title="AI 润色（Alt+P）">润色</button>
+          <button type="button" data-sel-ai="expand" title="AI 扩写（Alt+E）">扩写</button>
+          <button type="button" data-sel-ai="rewrite" title="AI 重写（Alt+R）">重写</button>
+          <button type="button" data-sel-ai="replace" title="换一种说法（Ctrl+Shift+Enter）">换说法</button>
+          <button type="button" class="sel-x" data-sel-close title="关闭">×</button>
+        </div>
+        <div id="ai-float">
+          <div class="af-hdr" id="af-hdr" title="拖动可移动">
+            <span class="af-title" id="af-title">AI 写作</span>
+            <span class="af-detail" data-af-detail title="在面板查看素材 / 前文 / 日志">详情</span>
+            <span class="af-close" data-af-close title="关闭（Esc）">×</span>
+          </div>
+          <div class="af-body" id="af-body"></div>
+          <div class="af-foot" id="af-foot"></div>
+        </div>
+      </div>
+      <div id="material-panel" hidden>
+        <div id="material-hdr">
+          <div class="mat-row1">
+            <div class="seg" id="mat-tabs">
+              <button data-mat="browse" class="active">词汇</button>
+              <button data-mat="golden">黄金句</button>
+              <button data-mat="fav">常用</button>
+            </div>
+            <div class="seg" id="seg-kind" title="词汇类型筛选">
+              <button data-kind="" class="active">全部</button>
+              <button data-kind="action">小动作</button>
+              <button data-kind="expression">小神态</button>
+            </div>
+          </div>
+          <div class="mat-row2">
+            <input id="mat-search" type="text" placeholder="在词库里搜…（@ 同款）" />
+            <div class="mat-actions">
+              <button class="dock-btn" id="btn-bank-manage">管理</button>
+              <button class="dock-btn" id="btn-bank-help">格式说明</button>
+            </div>
+          </div>
+        </div>
+        <div id="material-body"></div>
+      </div>
+      <div id="ai-panel">
+        <div class="ai-head">
+          <span class="ai-title" id="ai-title">AI 写作</span>
+          <select id="ai-model-sel" title="快速切换默认 Provider·模型（本任务若已路由则用路由绑定）"></select>
+          <button type="button" class="sec-btn ai-goto-settings" data-ai-goto-settings title="配置 API / Provider / 模型">设置</button>
+          <span class="ai-close" data-ai-close>关闭</span>
+        </div>
+        <div class="ai-taskbar" id="ai-taskbar"></div>
+        <div class="ai-cfgbar">
+          <span class="ai-cfg-emo">情绪 <b id="ai-emo-cur">紧张</b></span>
+          <span class="ai-cfg-sep"></span>
+          <input type="text" id="ai-keywords" class="ai-kw-input" placeholder="关键词（留空=自动规划）" title="手动填关键词则跳过自动规划，直接用于素材与前文检索；逗号 / 顿号 / 空格分隔">
+          <span class="ai-cfg-sep"></span>
+          <label class="chk dockchk" title="检索词句库素材"><input type="checkbox" id="ai-cfg-material" checked><span class="tick"></span><span>素材</span></label>
+          <label class="chk dockchk" title="注入角色卡 / 设定"><input type="checkbox" id="ai-cfg-lore" checked><span class="tick"></span><span>角色设定</span></label>
+          <label class="chk dockchk" title="注入前文情节"><input type="checkbox" id="ai-cfg-prev" checked><span class="tick"></span><span>前文</span></label>
+          <label class="chk dockchk" title="素材不足自动补搜"><input type="checkbox" id="ai-cfg-auto" checked><span class="tick"></span><span>自动补搜</span></label>
+          <label class="chk dockchk" title="开启后每次任务多一次 LLM 调用，复核去 AI 味/连贯/设定一致"><input type="checkbox" id="ai-cfg-reviewer"><span class="tick"></span><span>审校</span></label>
+          <label class="ai-cfg-temp" title="写作温度：越高越发散，越低越稳定">温度
+            <input type="number" id="ai-cfg-temp" min="0" max="1.5" step="0.1" value="0.7">
+          </label>
+        </div>
+        <div id="ai-body"></div>
+        <div class="ai-foot">
+          <div class="ai-history-hdr">
+            <span>历史</span>
+            <input type="text" id="ai-hist-kw" class="ai-hist-kw" placeholder="筛选任务/情绪/关键词…" title="按任务类型 / 情绪 / 关键词筛选历史">
+            <select id="ai-hist-type" class="ai-hist-type" title="按任务类型筛选"></select>
+            <button type="button" class="ai-clear-hist" data-ai-clear-hist title="清空 AI 写作历史">清空</button>
+          </div>
+          <div id="ai-history"></div>
+          <details class="ai-logwrap">
+            <summary>本次检索日志</summary>
+            <div id="ai-log"></div>
+          </details>
+        </div>
+      </div>
+    </div>
+    <div id="problems-wrap">
+      <div id="problems-hdr">
+        <span>反AI检查</span>
+        <div class="seg" id="prob-filter">
+          <button data-pf="" class="active">全部</button>
+          <button data-pf="error">错误</button>
+          <button data-pf="warn">警告</button>
+        </div>
+        <button type="button" class="sec-btn p-act" id="problems-fix-all" title="一键修复所有可自动替换的 T1 项">全部修复</button>
+        <button type="button" class="sec-btn p-act" id="problems-export" title="导出本次反AI问题报告 md">导出报告</button>
+        <span id="problems-sum" class="dim"></span>
+      </div>
+      <div id="problems"></div>
+    </div>
+  </div>
+  <div id="bottom-bar">
+    <span id="mode-desc">导入 1–4 份草稿开始对比（拖拽 / 多选 / 粘贴）</span>
+    <span id="bank-status"></span>
+  </div>
+  <div id="resize-handle"></div>
+</div>
+<input type="file" id="file-input" multiple accept=".md,.txt,text/plain,text/markdown" hidden>
+<div id="paste-modal">
+  <div id="paste-mask"></div>
+  <div id="paste-box">
+    <div class="paste-title">粘贴文本</div>
+    <textarea id="paste-text" placeholder="在此粘贴草稿全文…"></textarea>
+    <div class="paste-actions">
+      <button class="sec-btn" data-paste-cancel>取消</button>
+      <button class="main-btn" data-slot-done="1">加入对比</button>
+    </div>
+  </div>
+</div>
+  <div id="drop-overlay"><span>松开鼠标导入文件（词库 .md 自动识别）</span></div>
+  <div id="toast"></div>
+  <div id="caret-mirror" aria-hidden="true"></div>
+
+  <div id="shortcut-modal">
+    <div id="shortcut-mask"></div>
+    <div id="shortcut-box">
+      <div class="paste-title">快捷键</div>
+      <table class="shortcut-table">
+        <tr><td>Ctrl+Enter</td><td>补全候选（常用词句 + 情绪 + 上下文）</td></tr>
+        <tr><td>Ctrl+Shift+Enter</td><td>换一种说法（选中文字）</td></tr>
+        <tr><td>Alt+P / Alt+E / Alt+R</td><td>AI 润色 / 扩写 / 重写</td></tr>
+        <tr><td>@</td><td>全局搜词库（光标处输入）</td></tr>
+        <tr><td>↑ / ↓</td><td>候选列表移动选择</td></tr>
+        <tr><td>Enter / Tab</td><td>插入选中的候选</td></tr>
+        <tr><td>Esc</td><td>关闭弹窗 / 工具条 / 本面板</td></tr>
+        <tr><td>Ctrl+↑ / Ctrl+↓</td><td>对比区差异跳转</td></tr>
+        <tr><td>?</td><td>本快捷键面板</td></tr>
+      </table>
+      <div class="paste-actions">
+        <button type="button" class="sec-btn" data-shortcut-close>关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="fav-modal">
+    <div id="fav-mask"></div>
+    <div id="fav-box">
+      <div class="paste-title">常用词句（每行一条，参与补全）</div>
+      <textarea id="fav-text" placeholder="每行一条常用词句或短句&#10;例如：&#10;他喉头一滚&#10;雨水顺着雨衣领口往下淌&#10;地铁关门声被雨声盖过"></textarea>
+      <div class="paste-actions">
+        <button class="sec-btn" data-fav-import>导入 txt</button>
+        <button class="sec-btn" data-fav-cancel>取消</button>
+        <button class="main-btn" data-fav-save>保存</button>
+      </div>
+      <input type="file" id="fav-file" accept=".txt,.md" hidden>
+    </div>
+  </div>
+
+  <div id="settings-modal">
+    <div id="settings-mask"></div>
+    <div id="settings-box">
+      <div class="paste-title">设置</div>
+      <div class="set-tabs">
+        <button type="button" class="set-tab active" data-set-tab="svc">AI 服务</button>
+        <button type="button" class="set-tab" data-set-tab="agent">写作 Agent</button>
+        <button type="button" class="set-tab" data-set-tab="rules">检查与通用</button>
+        <button type="button" class="set-tab" data-set-tab="hotkeys">快捷键</button>
+      </div>
+      <div class="settings-body">
+        <div class="set-pane show" data-set-pane="svc">
+          <label class="set-check"><input type="checkbox" id="set-llm"> 启用联网 AI（本地词库为主；开启后正文/选区会上传给接口方）</label>
+          <label class="set-row dim">Provider
+            <span class="set-prov-wrap">
+              <select id="set-provider" title="选择要配置的 Provider（浏览不改变全局默认）"></select>
+              <button type="button" class="sec-btn" data-set-default title="把当前 Provider 设为全局默认">设为默认</button>
+              <button type="button" class="sec-btn" data-provider-manage>管理</button>
+              <button type="button" class="sec-btn" data-provider-new>＋新建</button>
+            </span>
+          </label>
+          <div class="set-row dim">接口类型 <span id="set-type-label">OpenAI 兼容</span></div>
+          <label class="set-row dim">API Base URL <input type="text" id="set-base" placeholder="https://api.deepseek.com/v1"></label>
+          <label class="set-row dim">默认模型（从下方模型列表里选）
+            <span class="set-model-wrap">
+              <select id="set-model" title="该 Provider 的默认模型"></select>
+              <button type="button" class="sec-btn" data-settings-models title="从当前 API 拉取模型列表并填入下方">拉取</button>
+            </span>
+          </label>
+          <label class="set-row dim">模型列表（可切换，逗号分隔；留空则只有上面的 Model）
+            <input type="text" id="set-models" placeholder="deepseek-chat, deepseek-reasoner">
+          </label>
+          <label class="set-row dim">备注 / 擅长领域
+            <input type="text" id="set-note" placeholder="如：快·便宜 / 文笔强 / 推理稳">
+          </label>
+          <label class="set-row dim">API Key <input type="password" id="set-key" placeholder="sk-..."></label>
+          <label class="set-check"><input type="checkbox" id="set-stream"> 流式输出（改写逐字出现，可取消）</label>
+          <div class="set-actions">
+            <button type="button" class="sec-btn" data-settings-test>测试连接</button>
+          </div>
+          <label class="set-row dim">上下文长度上限（字，0=不限）
+            <input type="number" id="set-ctxlimit" min="0" step="500" placeholder="0">
+          </label>
+          <span class="set-help">正文过长时自动截取最近 N 字，防止超上下文。</span>
+        </div>
+
+        <div class="set-pane" data-set-pane="agent">
+          <div class="set-sep">写作偏好（全局一份，AI 写作面板可快速改）</div>
+          <label class="set-row dim">全局额外指令（追加到系统提示词，如"古风文风、多用短句、避开 XX"）
+            <textarea id="cfg-systemnote" rows="2" placeholder="留空 = 默认行为"></textarea>
+          </label>
+          <label class="set-row dim">润色额外指令 <input type="text" id="cfg-note-polish" placeholder="如：多用短句"></label>
+          <label class="set-row dim">续写额外指令 <input type="text" id="cfg-note-continue" placeholder="如：接住上一段伏笔"></label>
+          <label class="set-row dim">扩写额外指令 <input type="text" id="cfg-note-expand" placeholder="如：补足细节与画面"></label>
+          <label class="set-row dim">重写额外指令 <input type="text" id="cfg-note-rewrite" placeholder="如：去 AI 味，白描"></label>
+          <div class="set-sep">行为开关（与 AI 写作面板同步）</div>
+          <div class="set-rules">
+            <label class="chk"><input type="checkbox" id="cfg-usematerial" checked><span class="tick"></span><span>检索词句库素材</span></label>
+            <label class="chk"><input type="checkbox" id="cfg-uselore" checked><span class="tick"></span><span>注入角色卡/设定</span></label>
+            <label class="chk"><input type="checkbox" id="cfg-useprev" checked><span class="tick"></span><span>注入前文情节</span></label>
+            <label class="chk"><input type="checkbox" id="cfg-autoresearch" checked><span class="tick"></span><span>素材不足自动补搜</span></label>
+          </div>
+          <label class="set-row dim">前文检索段数（0=不检索前文）
+            <input type="number" id="set-libsegs" min="0" max="10" step="1" placeholder="4">
+          </label>
+          <span class="set-help">AI 写作时从前文库检索多少段相关情节作为「前文情节」注入。</span>
+          <div class="set-sep">Agent 模型（跟随 Agent，Trae 式）</div>
+          <span class="set-help">每个子 Agent 独立一次调用、可绑定不同模型；「跟随当前」用 AI 服务 tab 里的默认。规划用便宜快的、写作用文笔强的、审校用推理稳的。</span>
+          <label class="set-row dim">规划（主编排决策） <select id="agent-model-planner"></select></label>
+          <label class="set-row dim">素材整理（本地检索后的整理）
+            <span class="set-inline-wrap">
+              <select id="agent-model-material"></select>
+              <select id="agent-material-mode" title="本地=去重排序（零成本）；LLM 辅助=让 AI 精选最贴合素材">
+                <option value="local">本地</option>
+                <option value="llm">LLM 辅助</option>
+              </select>
+            </span>
+          </label>
+          <label class="set-row dim">写作（出稿） <select id="agent-model-writer"></select></label>
+          <label class="set-row dim">审校（复核正文）
+            <span class="set-inline-wrap">
+              <select id="agent-model-reviewer"></select>
+              <label class="chk" title="开启后每次任务多一次 LLM 调用，复核去 AI 味/连贯/设定一致"><input type="checkbox" id="agent-reviewer-on"><span class="tick"></span><span>启用审校</span></label>
+            </span>
+          </label>
+          <div class="set-sep">自定义 Agent</div>
+          <span class="set-help">自己定义写手角色：自定义系统提示词 + 模型 + 行为开关。创建后出现在 AI 写作面板任务区。</span>
+          <div class="set-actions">
+            <button type="button" class="sec-btn" data-agent-new>＋ 新建</button>
+          </div>
+          <div id="custom-agent-list"></div>
+          <details class="set-adv">
+            <summary>高级参数（写作温度 / 输出上限）</summary>
+            <div class="set-adv-body">
+              <label class="set-row dim">写作温度（0-1.5） <input type="number" id="cfg-temperature" min="0" max="1.5" step="0.1" value="0.7"></label>
+              <span class="set-help">越高越发散，越低越稳定；AI 写作面板可快速调。</span>
+              <label class="set-row dim">写作输出上限（token） <input type="number" id="cfg-maxtokens" min="200" step="100" value="1200"></label>
+            </div>
+          </details>
+        </div>
+
+        <div class="set-pane" data-set-pane="rules">
+          <label class="set-check"><input type="checkbox" id="set-autosuggest"> 自动补全：句尾标点（。！？）或停顿后自动弹候选</label>
+          <label class="set-check"><input type="checkbox" id="set-ai-hotkeys"> AI 润色快捷键（Alt+P/E/R；关闭后选区工具条仍可用）</label>
+          <label class="set-row dim">定稿区字号（px） <input type="number" id="set-editor-font" min="10" max="24" step="0.5"></label>
+          <div class="set-sep">备份 / 导出</div>
+          <label class="set-row dim">数据备份
+            <span class="set-inline-wrap">
+              <button type="button" class="sec-btn" data-backup-export title="导出 设置+词库+设定+前文库 为 zip（不含 API Key）">导出全部备份 zip</button>
+              <button type="button" class="sec-btn" data-diff-report title="把当前对比差异整理成 md 报告下载">导出差异报告</button>
+            </span>
+          </label>
+          <span class="set-help">备份含：词库 / 黄金句 / 反AI规则 / 常用词句 / 角色卡 / 设定 / 前文库 / 设置。API Key 不导出，留在本机。</span>
+          <div class="set-sep">反AI检查规则（取消勾选后不再提示该类）</div>
+          <div class="set-rules">
+            <label class="chk"><input type="checkbox" id="rule-t1"><span class="tick"></span><span>T1 禁用词</span></label>
+            <label class="chk"><input type="checkbox" id="rule-t2"><span class="tick"></span><span>T2 同段聚集</span></label>
+            <label class="chk"><input type="checkbox" id="rule-t3"><span class="tick"></span><span>T3 全文密度</span></label>
+            <label class="chk"><input type="checkbox" id="rule-ctx"><span class="tick"></span><span>语境敏感阈值</span></label>
+            <label class="chk"><input type="checkbox" id="rule-pattern"><span class="tick"></span><span>句式模板</span></label>
+            <label class="chk"><input type="checkbox" id="rule-freq"><span class="tick"></span><span>词库⚠频率</span></label>
+          </div>
+        </div>
+        <div class="set-pane" data-set-pane="hotkeys">
+          <span class="set-help">点击「改」后按下新组合键即可生效（即时保存）；「清除」禁用该快捷键；弹窗内 ↑↓/Enter/Esc 与打字用键固定不开放。</span>
+          <div id="hotkeys-list"></div>
+          <label class="set-row dim" style="align-items:center">
+            <span>恢复全部默认键位</span>
+            <span class="set-inline-wrap"><button type="button" class="sec-btn" id="hotkeys-reset" title="把所有快捷键恢复为默认">恢复默认</button></span>
+          </label>
+        </div>
+        <div class="set-note">默认完全离线。开启 AI 后：正文与选区会发送给你配置的接口方，请注意隐私；扩展需要联网权限（<all_urls>）才能访问自定 API。</div>
+      </div>
+      <div class="paste-actions">
+        <button class="sec-btn" data-settings-cancel>取消</button>
+        <button class="main-btn" data-settings-save>保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 自定义 Agent 编辑 -->
+  <div id="agent-modal">
+    <div id="agent-mask" data-agent-mask></div>
+    <div id="agent-box">
+      <div class="paste-title" id="agent-title">新建自定义 Agent</div>
+      <input type="hidden" id="agent-edit-id">
+      <div class="agent-fields">
+      <label class="set-row dim">名称
+        <input type="text" id="agent-edit-name" placeholder="如：古风写手" maxlength="30">
+      </label>
+      <label class="set-row dim">系统提示词（写作 Agent 的角色定义）
+        <textarea id="agent-edit-prompt" rows="4" placeholder="你是古风小说写手：多用文言对白、白描景物、避免现代词汇…"></textarea>
+      </label>
+      <div class="set-row dim">运行模式
+        <div class="seg" id="agent-edit-mode">
+          <button type="button" data-amode="pipeline" class="active" title="先规划检索关键词再写作（更贴合词库素材）">完整管线</button>
+          <button type="button" data-amode="direct" title="跳过规划，从上下文自动提取关键词">直接写</button>
+        </div>
+      </div>
+      <div class="set-rules">
+        <label class="chk"><input type="checkbox" id="agent-edit-usematerial" checked><span class="tick"></span><span>检索素材</span></label>
+        <label class="chk"><input type="checkbox" id="agent-edit-uselore" checked><span class="tick"></span><span>注入角色设定</span></label>
+        <label class="chk"><input type="checkbox" id="agent-edit-useprev" checked><span class="tick"></span><span>注入前文</span></label>
+        <label class="chk"><input type="checkbox" id="agent-edit-enabled" checked><span class="tick"></span><span>启用</span></label>
+      </div>
+      <label class="set-row dim">模型绑定 <select id="agent-edit-model"></select></label>
+      <label class="set-row dim">温度（0-1.5） <input type="number" id="agent-edit-temperature" min="0" max="1.5" step="0.1" value="0.7"></label>
+      <label class="set-row dim">输出上限（token） <input type="number" id="agent-edit-maxtokens" min="200" step="100" value="1200"></label>
+      </div>
+      <div class="paste-actions">
+        <button class="sec-btn danger" data-agent-del>删除</button>
+        <button class="sec-btn" data-agent-cancel>取消</button>
+        <button class="main-btn" data-agent-save>保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Provider 管理 -->
+  <div id="provider-modal">
+    <div id="provider-mask" data-provider-mask></div>
+    <div id="provider-box">
+      <div class="paste-title">Provider 管理 <span class="dim" id="provider-count"></span></div>
+      <div id="provider-list"></div>
+      <div id="provider-extra"></div>
+      <div class="paste-actions">
+        <button class="sec-btn" data-provider-preset>添加预设</button>
+        <button class="sec-btn" data-provider-new>＋新建</button>
+        <div class="tb-spacer"></div>
+        <button class="main-btn" data-provider-close>关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 词库管理 -->
+  <div id="bank-modal">
+    <div id="bank-mask"></div>
+    <div id="bank-box">
+      <div class="paste-title">词库管理 <span class="dim" id="bank-count"></span></div>
+      <div id="bank-toolbar">
+        <div class="seg" id="bank-tabs">
+          <button data-btab="lexicon" class="active">词库</button>
+          <button data-btab="golden">黄金句</button>
+          <button data-btab="anti">反AI规则</button>
+          <button data-btab="fav">常用词句</button>
+        </div>
+        <input id="bank-search" type="text" placeholder="搜索词 / 释义 / 例句…">
+        <select id="bank-cat"></select>
+        <div class="tb-spacer"></div>
+        <button class="sec-btn" id="bank-add-btn" data-bank-add>＋ 新增</button>
+        <button class="sec-btn" id="bank-import-btn" data-bank-import>导入 md</button>
+        <button class="sec-btn" id="bank-export-btn" data-bank-export>导出 md</button>
+        <button class="sec-btn" id="bank-batch-btn" data-bank-batch>批量 md 编辑</button>
+        <button class="sec-btn" id="bank-cat-btn" data-bank-cat>分类</button>
+        <button class="sec-btn" id="bank-refresh-btn" data-bank-refresh>刷新</button>
+        <button class="sec-btn danger" id="bank-reset-btn" data-bank-reset>重置内置</button>
+      </div>
+      <div id="bank-list"></div>
+      <div class="paste-actions">
+        <button class="sec-btn" data-bank-format>格式说明</button>
+        <div class="tb-spacer"></div>
+        <span id="bank-page-info" class="dim"></span>
+        <button class="sec-btn" id="bank-prev" data-bank-prev>上一页</button>
+        <button class="sec-btn" id="bank-next" data-bank-next>下一页</button>
+        <button class="main-btn" data-bank-close>关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 单条编辑 -->
+  <div id="entry-modal">
+    <div id="entry-mask"></div>
+    <div id="entry-box">
+      <div class="paste-title" id="entry-title">编辑词条</div>
+      <div id="entry-mode-tabs" class="seg">
+        <button data-emode="form" class="active">表单</button>
+        <button data-emode="md">md 源码</button>
+      </div>
+      <div id="entry-form"></div>
+      <div id="entry-mdwrap" hidden>
+        <textarea id="entry-md" spellcheck="false"></textarea>
+        <div id="entry-md-err" class="set-note" hidden></div>
+      </div>
+      <div class="paste-actions">
+        <button class="sec-btn" data-entry-cancel>取消</button>
+        <button class="main-btn" data-entry-save>保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 批量 md 编辑 -->
+  <div id="batch-modal">
+    <div id="batch-mask"></div>
+    <div id="batch-box">
+      <div class="paste-title" id="batch-title">批量 md 编辑</div>
+      <textarea id="batch-md" spellcheck="false" placeholder="按当前类型的 md 格式编辑…"></textarea>
+      <div id="batch-err" class="set-note" hidden></div>
+      <div class="paste-actions">
+        <button class="sec-btn" data-batch-cancel>取消</button>
+        <button class="main-btn" data-batch-save>解析并保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 分类管理 -->
+  <div id="cat-modal">
+    <div id="cat-mask"></div>
+    <div id="cat-box">
+      <div class="paste-title">分类管理（改显示名，内置分类不影响类型筛选）</div>
+      <div id="cat-list"></div>
+      <div class="paste-actions">
+        <button class="sec-btn" data-cat-cancel>取消</button>
+        <button class="main-btn" data-cat-save>保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 前文库 -->
+  <div id="lib-modal">
+    <div id="lib-mask" data-lib-mask></div>
+    <div id="lib-box">
+      <div class="paste-title">前文库 <span class="dim" id="lib-count"></span></div>
+      <div class="lib-toolbar">
+        <input id="lib-search" type="text" placeholder="搜索标题 / 正文…">
+        <div class="tb-spacer"></div>
+        <button class="sec-btn" data-lib-import>导入 md/txt</button>
+        <button class="sec-btn" data-lib-new>＋ 新建</button>
+        <button class="sec-btn danger" data-lib-clear>清空</button>
+      </div>
+      <div id="lib-list"></div>
+      <div class="paste-actions">
+        <span class="dim lib-tip">导入前文章节后，AI 深度辅助写作时会检索最相关的段落作「前文情节」参考（数量可在设置里调）。</span>
+        <div class="tb-spacer"></div>
+        <button class="main-btn" data-lib-close>关闭</button>
+      </div>
+      <input type="file" id="lib-file" accept=".md,.txt,text/plain,text/markdown" multiple hidden>
+    </div>
+  </div>
+
+  <!-- 前文编辑 -->
+  <div id="lib-edit-modal">
+    <div id="lib-edit-mask"></div>
+    <div id="lib-edit-box">
+      <div class="paste-title" id="lib-edit-title-label">新建前文</div>
+      <input type="text" id="lib-edit-title" placeholder="章节标题，如 第 12 章">
+      <textarea id="lib-edit-text" placeholder="粘贴整章正文…"></textarea>
+      <input type="hidden" id="lib-edit-id">
+      <div class="paste-actions">
+        <button class="sec-btn" data-lib-edit-cancel>取消</button>
+        <button class="main-btn" data-lib-edit-save>保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 设定管理（角色卡 + 世界观设定卡） -->
+  <div id="lore-modal">
+    <div id="lore-mask" data-lore-mask></div>
+    <div id="lore-box">
+      <div class="paste-title">设定 <span class="dim" id="lore-count"></span></div>
+      <div class="lore-toolbar">
+        <div class="lore-cats" id="lore-cats"></div>
+        <div class="lore-tools">
+          <input id="lore-search" type="text" placeholder="搜索名称 / 描述…">
+          <label class="chk dockchk" title="跨全部角色与设定搜索"><input type="checkbox" id="lore-global"><span class="tick"></span><span>全库</span></label>
+          <div class="tb-spacer"></div>
+          <button class="sec-btn" data-lore-add>＋ 新增</button>
+          <button class="sec-btn" data-lore-import>导入 md</button>
+          <button class="sec-btn" data-lore-export>导出 md</button>
+          <button class="sec-btn" data-lore-batch>批量 md 编辑</button>
+          <button class="sec-btn" data-lore-catm title="新增 / 改名 / 排序分类，或给分类加模板字段">分类</button>
+          <button class="sec-btn" data-lore-refresh>刷新</button>
+        </div>
+      </div>
+      <div id="lore-list"></div>
+      <div class="paste-actions">
+        <span class="dim lore-tip">角色卡 / 设定卡会被 AI 深度辅助写作时全量注入：外貌 / 性格 / 称呼 / 关系 / 当前状态 / 专有名词须与卡一致。</span>
+        <div class="tb-spacer"></div>
+        <button class="main-btn" data-lore-close>关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 设定单条编辑 -->
+  <div id="lore-edit-modal">
+    <div id="lore-edit-mask" data-lore-edit-mask></div>
+    <div id="lore-edit-box">
+      <div class="paste-title" id="lore-edit-title">编辑设定</div>
+      <div class="seg" id="lore-edit-mode">
+        <button data-lemode="form" class="active">表单</button>
+        <button data-lemode="md">md 源码</button>
+      </div>
+      <div id="lore-edit-form"></div>
+      <div id="lore-edit-mdwrap" hidden>
+        <textarea id="lore-edit-md" spellcheck="false"></textarea>
+        <div id="lore-edit-md-err" class="set-note" hidden></div>
+      </div>
+      <input type="hidden" id="lore-edit-id">
+      <div class="paste-actions">
+        <button class="sec-btn danger" data-lore-del>删除</button>
+        <button class="sec-btn" data-lore-edit-cancel>取消</button>
+        <button class="main-btn" data-lore-edit-save>保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 设定批量 md 编辑 -->
+  <div id="lore-batch-modal">
+    <div id="lore-batch-mask" data-lore-batch-mask></div>
+    <div id="lore-batch-box">
+      <div class="paste-title" id="lore-batch-title">批量 md 编辑 · 设定</div>
+      <textarea id="lore-batch-md" spellcheck="false"></textarea>
+      <div id="lore-batch-err" class="set-note" hidden></div>
+      <div class="paste-actions">
+        <button class="sec-btn" data-lore-batch-cancel>取消</button>
+        <button class="main-btn" data-lore-batch-save>解析并保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 设定分类管理 -->
+  <div id="lore-cat-modal">
+    <div id="lore-cat-mask" data-lore-cat-mask></div>
+    <div id="lore-cat-box">
+      <div class="paste-title">分类管理 <span class="dim">新增 / 改名 / 排序，或给分类加模板字段</span></div>
+      <div id="lore-cat-list"></div>
+      <div class="paste-actions">
+        <button class="sec-btn" data-lore-catm-cancel>取消</button>
+        <button class="main-btn" data-lore-catm-save>保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通用三选弹窗（UI.choice） -->
+  <div id="ui-choice-modal">
+    <div id="ui-choice-mask" class="ui-choice-mask"></div>
+    <div id="ui-choice-box">
+      <div class="paste-title" id="ui-choice-title">选择</div>
+      <div id="ui-choice-msg" class="set-note"></div>
+      <div class="paste-actions" id="ui-choice-actions"></div>
+    </div>
+  </div>
+
+  <!-- 格式说明 -->
+  <div id="help-modal">
+    <div id="help-mask"></div>
+    <div id="help-box">
+      <div class="paste-title">词句库格式与目录说明</div>
+      <div id="help-body"></div>
+      <div class="paste-actions">
+        <button class="main-btn" data-help-close>知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 大纲文档编辑 -->
+  <div id="doc-edit-modal">
+    <div id="doc-edit-mask" data-doc-edit-mask></div>
+    <div id="doc-edit-box">
+      <div class="paste-title" id="doc-edit-title-label">新建文档</div>
+      <input type="text" id="doc-edit-name" placeholder="文档名，如 大纲 / 第 12 章">
+      <textarea id="doc-edit-text" placeholder="粘贴 md / txt 全文…"></textarea>
+      <input type="hidden" id="doc-edit-id">
+      <div class="paste-actions">
+        <button class="sec-btn" data-doc-edit-cancel>取消</button>
+        <button class="main-btn" data-doc-edit-save>保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/util.js"></script>
+  <script src="js/constants.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/bus.js"></script>
+  <script src="js/appstate.js"></script>
+  <script src="js/diff.js"></script>
+  <script src="js/banks.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/suggest.js"></script>
+  <script src="js/lint.js"></script>
+  <script src="js/hotkeys.js"></script>
+  <script src="js/llm.js"></script>
+  <script src="js/modelpicker.js"></script>
+  <script src="js/agent.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/editor-settings.js"></script>
+  <script src="js/editor-ai.js"></script>
+  <script src="js/bankmanager.js"></script>
+  <script src="js/loremanager.js"></script>
+  <script src="js/library.js"></script>
+  <script src="js/mdoutline.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

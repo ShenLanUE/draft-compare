@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "稿定",
+  "version": "2.15.2",
+  "description": "多草稿对比 + 定稿手写：反AI实时检查、词库/黄金句素材、情绪补全、可选联网 AI 改写。默认完全离线，开启 AI 才联网",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "稿定（侧边栏打开）"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "permissions": ["clipboardWrite", "sidePanel", "windows"],
+  "host_permissions": ["<all_urls>"]
+}
